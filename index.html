@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
   --bg: #F8FAFC;
@@ -497,7 +497,11 @@ body.admin-locked > .modal-backdrop {
       <span>Rekap Nilai Final &amp; Ekspor Spreadsheet</span>
       <span class="tab-count mono" id="tabBadgeGrad">72</span>
     </button>
-    <button type="button" class="nav-tab" data-tab="batchmgr">
+    <button type="button" class="nav-tab" data-tab="accounts">
+      <span>Pantau Akun &amp; Foto Profil</span>
+      <span class="tab-count mono" id="tabBadgeAccounts">72</span>
+    </button>
+        <button type="button" class="nav-tab" data-tab="batchmgr">
       <span>Kelola Batch 8 &amp; Alumni Batch 7</span>
       <span class="tab-count mono" id="tabBadgeBatch">B7/B8</span>
     </button>
@@ -589,6 +593,32 @@ body.admin-locked > .modal-backdrop {
         </table>
       </div>
     </div>
+  </section>
+
+  <!-- TAB: PANTAU AKUN & FOTO PROFIL DUTA (LIVE SUPABASE) -->
+  <section id="view-accounts" class="tab-view hidden">
+    <div class="card" style="padding:16px 20px;margin-bottom:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+        <div>
+          <div style="font-size:11px;font-weight:800;text-transform:uppercase;color:var(--primary);letter-spacing:0.05em;">Pemantauan Akun Live</div>
+          <h2 style="margin:2px 0 4px;font-size:17px;font-weight:800;">Galeri Akun, Foto Profil (PP), &amp; Aktivitas Duta</h2>
+          <p id="accountsGallerySub" style="margin:0;font-size:12.5px;color:var(--ink-secondary);">Klik kartu akun mana saja untuk melihat profil lengkap, bukti laporan, atau mengedit email &amp; status aksesnya.</p>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <select id="accBatchFilter" style="padding:7px 10px;border-radius:8px;border:1px solid var(--line);font-size:12.5px;font-weight:700;background:#fff;">
+            <option value="ALL">Semua Batch</option>
+            <option value="7">Batch 7</option>
+            <option value="8">Batch 8</option>
+          </select>
+          <select id="accPhotoFilter" style="padding:7px 10px;border-radius:8px;border:1px solid var(--line);font-size:12.5px;font-weight:700;background:#fff;">
+            <option value="ALL">Semua Akun</option>
+            <option value="HAS_PHOTO">Sudah Pasang Foto Profil</option>
+            <option value="NO_PHOTO">Belum Pasang Foto Profil</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div id="accountsCardGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px;"></div>
   </section>
 
   <!-- TAB 2: KELOLA BATCH 8 & ALUMNI BATCH 7 -->
@@ -805,13 +835,32 @@ body.admin-locked > .modal-backdrop {
   <!-- TAB 4: LOG ASESMEN & DURASI ISI -->
   <section id="view-psych" class="tab-view hidden">
     <div class="panel">
-      <div class="panel-head">
+      <div class="panel-head" style="flex-wrap:wrap;gap:12px;">
         <div>
-          <h3>Log Asesmen Psikometri (`psychometric_assessments` Live Supabase)</h3>
+          <h3>Log Asesmen Psikometri &amp; Bukti Screenshot Waktu Layar</h3>
           <div style="font-size:12px;color:var(--ink-muted);margin-top:2px;">
-            Memantau durasi pengerjaan (`Dwell Time`), variasi butir jawaban, skor MAPS-15 / BSMAS / DASS-21, dan bukti Screen Time.
+            Memantau durasi pengerjaan (Dwell Time), variasi jawaban, skor MAPS-15 / BSMAS / DASS-21, serta bukti screenshot Pre-Test, Mid-Test, dan Post-Test.
           </div>
         </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+          <select id="psychStageFilter" style="padding:7px 10px;border-radius:10px;border:1px solid var(--line);font-size:12px;font-weight:600;background:#fff;">
+            <option value="ALL">Semua Tahap (Pre/Mid/Post)</option>
+            <option value="pretest">Pre-Test Saja</option>
+            <option value="midtest">Mid-Test Saja</option>
+            <option value="posttest">Post-Test Saja</option>
+          </select>
+          <select id="psychProofFilter" style="padding:7px 10px;border-radius:10px;border:1px solid var(--line);font-size:12px;font-weight:600;background:#fff;">
+            <option value="ALL">Semua Status Bukti SS</option>
+            <option value="HAS_IMAGE_OR_LINK">Ada Foto / Link Drive</option>
+            <option value="LEGACY_FILE">Upload Galeri Versi Lama (Nama File)</option>
+            <option value="EMPTY">Bukti Kosong</option>
+          </select>
+        </div>
+      </div>
+      <div id="psychProofSummaryBar" style="padding:10px 18px;border-bottom:1px solid var(--line);background:#f8fafc;display:flex;gap:12px;flex-wrap:wrap;align-items:center;font-size:12px;"></div>
+      <div id="psychGalleryWrap" style="padding:14px 18px;border-bottom:1px solid var(--line);display:none;">
+        <div style="font-size:12px;font-weight:800;color:var(--ink-soft);margin-bottom:10px;">Galeri Foto Screenshot Waktu Layar Tersimpan (Klik untuk Perbesar)</div>
+        <div id="psychGalleryGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;"></div>
       </div>
       <div class="table-wrap">
         <table>
@@ -832,6 +881,37 @@ body.admin-locked > .modal-backdrop {
     </div>
   </section>
 </main>
+
+
+<!-- Modal Lightbox Preview Screenshot Waktu Layar -->
+<div class="modal-backdrop" id="ssLightboxModal" style="z-index:9999;">
+  <div class="modal-card" style="max-width:760px;width:94%;text-align:center;">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px;border-bottom:1px solid var(--line);padding-bottom:10px;text-align:left;">
+      <div>
+        <div id="ssLightboxMeta" class="mono" style="font-size:11.5px;color:var(--primary);font-weight:700;"></div>
+        <h3 id="ssLightboxTitle" style="margin:2px 0 0;font-size:16px;">Bukti Screenshot Waktu Layar</h3>
+      </div>
+      <button type="button" class="btn" id="closeSsLightboxBtn" style="padding:6px 12px;font-size:12px;">Tutup</button>
+    </div>
+    <div style="max-height:70vh;overflow:auto;background:#0f172a;border-radius:12px;padding:10px;display:flex;justify-content:center;align-items:center;">
+      <img id="ssLightboxImg" src="" alt="Screenshot Waktu Layar" style="max-width:100%;max-height:66vh;border-radius:8px;object-fit:contain;">
+    </div>
+  </div>
+</div>
+
+<!-- Modal Profil Lengkap & Edit Cepat Per Duta -->
+<div class="modal-backdrop" id="baProfileModal">
+  <div class="modal-card" style="max-width:720px;width:95%;">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;border-bottom:1px solid var(--line);padding-bottom:10px;">
+      <div>
+        <div id="baProfSub" class="mono" style="font-size:11.5px;color:var(--primary-dark);font-weight:700;">AMA7-001 · BATCH 7</div>
+        <h3 id="baProfTitle" style="margin:2px 0 0;font-size:18px;font-weight:800;color:var(--ink);">Profil Duta</h3>
+      </div>
+      <button type="button" class="btn" onclick="closeBaProfileModal()">Tutup</button>
+    </div>
+    <div id="baProfBody" style="max-height:76vh;overflow-y:auto;padding-right:4px;"></div>
+  </div>
+</div>
 
 <!-- Modal Detail Jawaban -->
 <div class="modal-backdrop" id="detailModal">
@@ -895,7 +975,11 @@ function findOfficialBa(nameOrCode) {
     normStr(r.referral_code) === q ||
     normStr(r.code) === q ||
     normStr(r.email) === q
-  ) || OFFICIAL_ROSTER.find(r => normStr(r.name).startsWith(q) && q.length >= 4) || null;
+  ) || OFFICIAL_ROSTER.find(r => {
+    const rn = normStr(r.name);
+    if (!rn || rn.length < 4 || q.length < 4) return false;
+    return rn.startsWith(q) || q.startsWith(rn);
+  }) || null;
 }
 
 function evaluateGrade(pts) {
@@ -943,7 +1027,7 @@ function analyzePsychometricQuality(rec) {
   // 3. Cek bukti Screen Time
   const stUrl = String(rec.screentime_proof_url || '').trim();
   const stMin = Number(rec.screentime_total_minutes || 0);
-  if (!stUrl || (!stUrl.startsWith('http') && !stUrl.startsWith('data:image'))) {
+  if (!stUrl || (!stUrl.startsWith('http') && !stUrl.startsWith('data:image') && !stUrl.startsWith('screenshot_terlampir://'))) {
     reasons.push('Bukti Screenshot Waktu Layar Kosong / Tidak Valid');
     flags.push('BAD_LINK');
   }
@@ -1285,16 +1369,85 @@ function renderAllViews() {
 
   const psychTbody = $('#psychTableBody');
   if (psychTbody) {
-    if (!filteredPsych.length) {
-      psychTbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:28px;color:var(--ink-muted);">Memuat data dari tabel <code>psychometric_assessments</code> Supabase... Klik "🔄 Tarik Data Live Supabase" di kanan atas.</td></tr>`;
+    const stageFilterVal = ($('#psychStageFilter')?.value || 'ALL').toLowerCase();
+    const proofFilterVal = $('#psychProofFilter')?.value || 'ALL';
+    const stageMatched = filteredPsych.filter(p => stageFilterVal === 'all' || String(p.assessment_type || 'pretest').toLowerCase() === stageFilterVal);
+    let cntImg = 0, cntLink = 0, cntLegacy = 0, cntEmpty = 0;
+    stageMatched.forEach(p => {
+      const s = String(p.screentime_proof_url || '').trim();
+      if (s.startsWith('data:image')) cntImg++;
+      else if (s.startsWith('http')) cntLink++;
+      else if (s.startsWith('screenshot_terlampir://')) cntLegacy++;
+      else cntEmpty++;
+    });
+    const sumBar = $('#psychProofSummaryBar');
+    if (sumBar) {
+      sumBar.innerHTML = `
+        <span>Total Rekaman: <strong>${stageMatched.length}</strong></span>
+        <span class="pill pill-ok">Foto Langsung: <strong>${cntImg}</strong></span>
+        <span class="pill pill-ok">Link Drive: <strong>${cntLink}</strong></span>
+        <span class="pill pill-warn">Upload Galeri Lama (Nama File): <strong>${cntLegacy}</strong></span>
+        <span class="pill pill-danger">Kosong: <strong>${cntEmpty}</strong></span>
+      `;
+    }
+    const finalPsychRows = stageMatched.filter(p => {
+      const s = String(p.screentime_proof_url || '').trim();
+      if (proofFilterVal === 'HAS_IMAGE_OR_LINK') return s.startsWith('data:image') || s.startsWith('http');
+      if (proofFilterVal === 'LEGACY_FILE') return s.startsWith('screenshot_terlampir://');
+      if (proofFilterVal === 'EMPTY') return !s;
+      return true;
+    });
+
+    const photoRows = finalPsychRows.filter(p => String(p.screentime_proof_url || '').trim().startsWith('data:image'));
+    const galWrap = $('#psychGalleryWrap');
+    const galGrid = $('#psychGalleryGrid');
+    if (galWrap && galGrid) {
+      if (photoRows.length) {
+        galWrap.style.display = 'block';
+        galGrid.innerHTML = photoRows.map((p, gi) => `
+          <div data-open-ss-photo="${gi}" style="cursor:pointer;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;">
+            <img src="${esc(p.screentime_proof_url)}" alt="SS ${esc(p.full_name)}" style="width:100%;height:110px;object-fit:cover;display:block;background:#0f172a;">
+            <div style="padding:7px 8px;">
+              <div style="font-size:11.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(p.full_name)}</div>
+              <div class="mono" style="font-size:10.5px;color:var(--ink-muted);">${esc(String(p.assessment_type || 'pretest').toUpperCase())} · ${p.screentime_total_minutes || 0} mnt</div>
+            </div>
+          </div>
+        `).join('');
+        galGrid.querySelectorAll('[data-open-ss-photo]').forEach(card => {
+          card.addEventListener('click', () => {
+            const rec = photoRows[Number(card.getAttribute('data-open-ss-photo'))];
+            if (!rec) return;
+            if ($('#ssLightboxImg')) $('#ssLightboxImg').src = rec.screentime_proof_url;
+            if ($('#ssLightboxTitle')) $('#ssLightboxTitle').textContent = `${rec.full_name} (${String(rec.assessment_type || 'pretest').toUpperCase()})`;
+            if ($('#ssLightboxMeta')) $('#ssLightboxMeta').textContent = `${rec.as_id || ''} · Waktu Layar: ${rec.screentime_total_minutes || 0} menit/hari · Submit: ${String(rec.created_at || '').slice(0, 19).replace('T', ' ')}`;
+            $('#ssLightboxModal')?.classList.add('open');
+          });
+        });
+      } else {
+        galWrap.style.display = 'none';
+      }
+    }
+
+    if (!finalPsychRows.length) {
+      psychTbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:28px;color:var(--ink-muted);">Tidak ada data asesmen psikometri sesuai filter. Klik "Tarik Data Live Supabase" di kanan atas.</td></tr>`;
     } else {
-      psychTbody.innerHTML = filteredPsych.map((p, idx) => {
+      window.__renderedPsychRows = finalPsychRows;
+      psychTbody.innerHTML = finalPsychRows.map((p, idx) => {
         const qCheck = analyzePsychometricQuality(p);
         const dwell = Number(p.dwell_time_seconds || 0);
         const stLink = String(p.screentime_proof_url || '').trim();
-        const stHtml = stLink.startsWith('http')
-          ? `<a href="${esc(stLink)}" target="_blank" rel="noopener noreferrer" class="btn" style="padding:4px 8px;font-size:11px;">Lihat Screenshot ↗</a>`
-          : (stLink.startsWith('data:image') ? `<span class="pill pill-ok"> Gambar Tersimpan</span>` : `<span class="pill pill-danger">Kosong</span>`);
+        let stHtml = `<span class="pill pill-danger">Kosong</span>`;
+        if (stLink.startsWith('http')) {
+          stHtml = `<a href="${esc(stLink)}" target="_blank" rel="noopener noreferrer" class="btn" style="padding:4px 8px;font-size:11px;">Buka Link Drive</a>`;
+        } else if (stLink.startsWith('data:image')) {
+          stHtml = `<div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
+            <img src="${esc(stLink)}" data-open-ss-row="${idx}" alt="SS" style="width:40px;height:40px;object-fit:cover;border-radius:6px;border:1px solid var(--line);cursor:pointer;">
+            <button type="button" class="btn" data-open-ss-row="${idx}" style="padding:4px 8px;font-size:11px;">Lihat Foto SS</button>
+          </div>`;
+        } else if (stLink.startsWith('screenshot_terlampir://')) {
+          const fname = stLink.replace('screenshot_terlampir://', '');
+          stHtml = `<span class="pill pill-warn">Upload Galeri Lama</span><div class="mono" style="font-size:10.5px;color:var(--ink-muted);margin-top:3px;max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(fname)}">${esc(fname)}</div>`;
+        }
         return `
           <tr class="${qCheck.isFlagged ? 'row-flagged' : ''}">
             <td class="mono" style="font-size:11.5px;white-space:nowrap;">${esc(String(p.created_at || '').slice(0, 19).replace('T', ' '))}</td>
@@ -1303,7 +1456,7 @@ function renderAllViews() {
               <span class="mono" style="font-size:11px;color:var(--primary);">${esc(p.as_id)} · ${esc(String(p.assessment_type || 'pretest').toUpperCase())}</span>
             </td>
             <td class="mono" style="font-weight:700;color:${dwell < 45 ? 'var(--danger)' : 'var(--ok)'};">
-              ${dwell} detik ${dwell < 45 ? '⚡ (Terlalu Cepat!)' : '✓'}
+              ${dwell} detik ${dwell < 45 ? '(Terlalu Cepat)' : 'OK'}
             </td>
             <td class="mono" style="font-size:12px;">
               MAPS: <strong>${p.score_maps15}</strong> · BSMAS: <strong>${p.score_bsmas}</strong> · DASS: <strong>${p.score_dass_total}</strong> (D:${p.score_dass_depression}/A:${p.score_dass_anxiety}/S:${p.score_dass_stress})
@@ -1314,15 +1467,25 @@ function renderAllViews() {
             </td>
             <td>
               ${qCheck.isFlagged
-                ? qCheck.reasons.map(r => `<div><span class="pill pill-danger">⚠️ ${esc(r)}</span></div>`).join('')
-                : '<span class="pill pill-ok">✓ Jawaban Wajar &amp; Valid</span>'}
+                ? qCheck.reasons.map(r => `<div><span class="pill pill-danger">${esc(r)}</span></div>`).join('')
+                : '<span class="pill pill-ok">Jawaban Wajar &amp; Valid</span>'}
             </td>
             <td>
-              <button type="button" class="btn" data-view-psych-idx="${idx}" style="padding:5px 9px;font-size:11.5px;">🔍 Lihat 47 Butir</button>
+              <button type="button" class="btn" data-view-psych-idx="${idx}" style="padding:5px 9px;font-size:11.5px;">Lihat 47 Butir</button>
             </td>
           </tr>
         `;
       }).join('');
+      psychTbody.querySelectorAll('[data-open-ss-row]').forEach(el => {
+        el.addEventListener('click', () => {
+          const rec = finalPsychRows[Number(el.getAttribute('data-open-ss-row'))];
+          if (!rec || !rec.screentime_proof_url) return;
+          if ($('#ssLightboxImg')) $('#ssLightboxImg').src = rec.screentime_proof_url;
+          if ($('#ssLightboxTitle')) $('#ssLightboxTitle').textContent = `${rec.full_name} (${String(rec.assessment_type || 'pretest').toUpperCase()})`;
+          if ($('#ssLightboxMeta')) $('#ssLightboxMeta').textContent = `${rec.as_id || ''} · Waktu Layar: ${rec.screentime_total_minutes || 0} menit/hari · Submit: ${String(rec.created_at || '').slice(0, 19).replace('T', ' ')}`;
+          $('#ssLightboxModal')?.classList.add('open');
+        });
+      });
     }
   }
 }
@@ -1366,8 +1529,8 @@ async function fetchAllLiveSupabaseData() {
   try {
     const [psychRes, sfRes, dcRes] = await Promise.all([
       sb.from('psychometric_assessments').select('*').order('created_at', { ascending: false }).limit(500),
-      sb.from('ama_superform_submissions').select('*').order('created_at', { ascending: false }).limit(1000),
-      sb.from('daily_checkins').select('*').order('created_at', { ascending: false }).limit(1000)
+      sb.from('ama_superform_submissions').select('*').order('created_at', { ascending: false }).limit(2500),
+      sb.from('daily_checkins').select('*').order('created_at', { ascending: false }).limit(2500)
     ]);
 
     if (!psychRes.error && Array.isArray(psychRes.data)) {
@@ -1375,6 +1538,7 @@ async function fetchAllLiveSupabaseData() {
     }
 
     if (!sfRes.error && Array.isArray(sfRes.data) && sfRes.data.length > 0) {
+      lastLiveSyncSucceeded = true;
       // Gabungkan kiriman baru dari Supabase dengan 314 baseline
       const newFromSb = sfRes.data.filter(r => !r.sheet_row_id || Number(r.sheet_row_id) > 314);
       liveTrackerRecords = [...newFromSb, ...BASELINE_SUPERFORM];
@@ -1461,7 +1625,7 @@ $('#btnExportCleanCsv')?.addEventListener('click', () => {
   showToast('CSV Rekap 72 Duta berhasil diunduh.');
 });
 
-$('#btnRefreshCloud')?.addEventListener('click', fetchAllLiveSupabaseData);
+$('#btnRefreshCloud')?.addEventListener('click', () => fetchAllLiveSupabaseData());
 
 // Initial boot
 renderAllViews();
@@ -1603,6 +1767,13 @@ $('#btnExportPsychCsv')?.addEventListener('click', () => {
 // ADMIN MONITOR V2.0: REKAP FINAL SIAP SPREADSHEET + KELOLA BATCH 8 & ALUMNI
 // ============================================================================
 let liveRosterRecords = [];
+const SUPABASE_SNAPSHOT_27NOV = {"AMA7-065": {"as_id": "AMA7-065", "full_name": "Kafka Novisya Santi", "base_points_16nov": 115, "new_reports_after_16nov": 51, "added_points_after_16nov": 740, "total_points": 855, "grade_letter": "A+"}, "AMA7-063": {"as_id": "AMA7-063", "full_name": "Abiddullah Daffa Rahman", "base_points_16nov": 85, "new_reports_after_16nov": 37, "added_points_after_16nov": 650, "total_points": 735, "grade_letter": "A+"}, "AMA7-020": {"as_id": "AMA7-020", "full_name": "Muhamad Fakhrurozi", "base_points_16nov": 135, "new_reports_after_16nov": 46, "added_points_after_16nov": 495, "total_points": 630, "grade_letter": "A+"}, "AMA7-058": {"as_id": "AMA7-058", "full_name": "Fauzan Jefri", "base_points_16nov": 205, "new_reports_after_16nov": 28, "added_points_after_16nov": 420, "total_points": 625, "grade_letter": "A+"}, "AMA7-039": {"as_id": "AMA7-039", "full_name": "Saskia Nur Wijaya Fedi", "base_points_16nov": 235, "new_reports_after_16nov": 32, "added_points_after_16nov": 385, "total_points": 620, "grade_letter": "A+"}, "AMA7-009": {"as_id": "AMA7-009", "full_name": "Rizky Saputra", "base_points_16nov": 195, "new_reports_after_16nov": 28, "added_points_after_16nov": 280, "total_points": 475, "grade_letter": "A+"}, "AMA7-049": {"as_id": "AMA7-049", "full_name": "Denti Listiana", "base_points_16nov": 130, "new_reports_after_16nov": 24, "added_points_after_16nov": 295, "total_points": 425, "grade_letter": "A+"}, "AMA7-068": {"as_id": "AMA7-068", "full_name": "Nur Athiyah", "base_points_16nov": 135, "new_reports_after_16nov": 14, "added_points_after_16nov": 245, "total_points": 380, "grade_letter": "A+"}, "AMA7-007": {"as_id": "AMA7-007", "full_name": "Shaila Sofi", "base_points_16nov": 90, "new_reports_after_16nov": 28, "added_points_after_16nov": 280, "total_points": 370, "grade_letter": "A+"}, "AMA7-034": {"as_id": "AMA7-034", "full_name": "Artika Nur Utami", "base_points_16nov": 165, "new_reports_after_16nov": 14, "added_points_after_16nov": 145, "total_points": 310, "grade_letter": "A+"}, "AMA7-002": {"as_id": "AMA7-002", "full_name": "Abdillah Al Ishfahani", "base_points_16nov": 205, "new_reports_after_16nov": 7, "added_points_after_16nov": 95, "total_points": 300, "grade_letter": "A+"}, "AMA7-055": {"as_id": "AMA7-055", "full_name": "Keisya putri asyifa", "base_points_16nov": 115, "new_reports_after_16nov": 15, "added_points_after_16nov": 185, "total_points": 300, "grade_letter": "A+"}, "AMA7-013": {"as_id": "AMA7-013", "full_name": "Halimatus Sa'diyah Alpa Sundani", "base_points_16nov": 155, "new_reports_after_16nov": 9, "added_points_after_16nov": 115, "total_points": 270, "grade_letter": "A+"}, "AMA7-031": {"as_id": "AMA7-031", "full_name": "Novi Maya Thitania Pratiwi", "base_points_16nov": 115, "new_reports_after_16nov": 9, "added_points_after_16nov": 150, "total_points": 265, "grade_letter": "A+"}, "AMA7-064": {"as_id": "AMA7-064", "full_name": "Chaylla Qibtiah", "base_points_16nov": 115, "new_reports_after_16nov": 7, "added_points_after_16nov": 150, "total_points": 265, "grade_letter": "A+"}, "AMA7-024": {"as_id": "AMA7-024", "full_name": "Nabila Shofwah", "base_points_16nov": 90, "new_reports_after_16nov": 16, "added_points_after_16nov": 165, "total_points": 255, "grade_letter": "A+"}, "AMA7-060": {"as_id": "AMA7-060", "full_name": "Desi Rahmawati", "base_points_16nov": 105, "new_reports_after_16nov": 7, "added_points_after_16nov": 140, "total_points": 245, "grade_letter": "A+"}, "AMA7-004": {"as_id": "AMA7-004", "full_name": "Husnul Khotimah", "base_points_16nov": 135, "new_reports_after_16nov": 7, "added_points_after_16nov": 105, "total_points": 240, "grade_letter": "A+"}, "AMA7-071": {"as_id": "AMA7-071", "full_name": "Nova Putriana", "base_points_16nov": 115, "new_reports_after_16nov": 3, "added_points_after_16nov": 110, "total_points": 225, "grade_letter": "A+"}, "AMA7-042": {"as_id": "AMA7-042", "full_name": "Soraya Mumtaz", "base_points_16nov": 125, "new_reports_after_16nov": 7, "added_points_after_16nov": 95, "total_points": 220, "grade_letter": "A+"}, "AMA7-059": {"as_id": "AMA7-059", "full_name": "Syahran fadhilah rizky", "base_points_16nov": 115, "new_reports_after_16nov": 5, "added_points_after_16nov": 100, "total_points": 215, "grade_letter": "A+"}, "AMA7-061": {"as_id": "AMA7-061", "full_name": "Aulia Fatimatuz Zahra", "base_points_16nov": 70, "new_reports_after_16nov": 6, "added_points_after_16nov": 145, "total_points": 215, "grade_letter": "A+"}, "AMA7-070": {"as_id": "AMA7-070", "full_name": "Yugarih Karina Purwadi", "base_points_16nov": 105, "new_reports_after_16nov": 6, "added_points_after_16nov": 105, "total_points": 210, "grade_letter": "A+"}, "AMA7-008": {"as_id": "AMA7-008", "full_name": "Dwi Lukita Ning Maulidiah", "base_points_16nov": 115, "new_reports_after_16nov": 7, "added_points_after_16nov": 90, "total_points": 205, "grade_letter": "A+"}, "AMA7-011": {"as_id": "AMA7-011", "full_name": "Nindyta Ajrun Adhim", "base_points_16nov": 155, "new_reports_after_16nov": 5, "added_points_after_16nov": 50, "total_points": 205, "grade_letter": "A+"}, "AMA7-027": {"as_id": "AMA7-027", "full_name": "Masjuanda", "base_points_16nov": 115, "new_reports_after_16nov": 6, "added_points_after_16nov": 90, "total_points": 205, "grade_letter": "A+"}, "AMA7-035": {"as_id": "AMA7-035", "full_name": "Nur Najmi Fadhilah", "base_points_16nov": 90, "new_reports_after_16nov": 8, "added_points_after_16nov": 115, "total_points": 205, "grade_letter": "A+"}, "AMA7-044": {"as_id": "AMA7-044", "full_name": "M RIZKI RAMADHANI KARIM", "base_points_16nov": 120, "new_reports_after_16nov": 4, "added_points_after_16nov": 85, "total_points": 205, "grade_letter": "A+"}, "AMA7-053": {"as_id": "AMA7-053", "full_name": "Dila aulia putri", "base_points_16nov": 95, "new_reports_after_16nov": 7, "added_points_after_16nov": 110, "total_points": 205, "grade_letter": "A+"}, "AMA7-056": {"as_id": "AMA7-056", "full_name": "Nyimas Kirana Laila Amelia Putri Nurman", "base_points_16nov": 195, "new_reports_after_16nov": 1, "added_points_after_16nov": 10, "total_points": 205, "grade_letter": "A+"}, "AMA7-010": {"as_id": "AMA7-010", "full_name": "Deborah Johnsia Christi Raharjo", "base_points_16nov": 125, "new_reports_after_16nov": 5, "added_points_after_16nov": 70, "total_points": 195, "grade_letter": "A"}, "AMA7-018": {"as_id": "AMA7-018", "full_name": "Aura Diva Angela Lovely", "base_points_16nov": 115, "new_reports_after_16nov": 7, "added_points_after_16nov": 80, "total_points": 195, "grade_letter": "A"}, "AMA7-030": {"as_id": "AMA7-030", "full_name": "Jea Refizha Azahra", "base_points_16nov": 95, "new_reports_after_16nov": 9, "added_points_after_16nov": 95, "total_points": 190, "grade_letter": "A"}, "AMA7-025": {"as_id": "AMA7-025", "full_name": "Khashifatu Dzakiyyah", "base_points_16nov": 105, "new_reports_after_16nov": 6, "added_points_after_16nov": 80, "total_points": 185, "grade_letter": "A"}, "AMA7-043": {"as_id": "AMA7-043", "full_name": "Annisa Amelia Dewi", "base_points_16nov": 115, "new_reports_after_16nov": 4, "added_points_after_16nov": 65, "total_points": 180, "grade_letter": "A"}, "AMA7-057": {"as_id": "AMA7-057", "full_name": "Fegi Sastri", "base_points_16nov": 100, "new_reports_after_16nov": 4, "added_points_after_16nov": 80, "total_points": 180, "grade_letter": "A"}, "AMA7-016": {"as_id": "AMA7-016", "full_name": "Satria Wira Yudha", "base_points_16nov": 125, "new_reports_after_16nov": 3, "added_points_after_16nov": 50, "total_points": 175, "grade_letter": "A"}, "AMA7-028": {"as_id": "AMA7-028", "full_name": "Berliana Bilqis Sapandi", "base_points_16nov": 135, "new_reports_after_16nov": 2, "added_points_after_16nov": 40, "total_points": 175, "grade_letter": "A"}, "AMA7-051": {"as_id": "AMA7-051", "full_name": "Ivonne Airenne Markus", "base_points_16nov": 80, "new_reports_after_16nov": 7, "added_points_after_16nov": 95, "total_points": 175, "grade_letter": "A"}, "AMA7-037": {"as_id": "AMA7-037", "full_name": "Gavin Ardiansyah", "base_points_16nov": 115, "new_reports_after_16nov": 2, "added_points_after_16nov": 40, "total_points": 155, "grade_letter": "B+"}, "AMA7-048": {"as_id": "AMA7-048", "full_name": "Muhamad Ariq Numan", "base_points_16nov": 90, "new_reports_after_16nov": 5, "added_points_after_16nov": 65, "total_points": 155, "grade_letter": "B+"}, "AMA7-022": {"as_id": "AMA7-022", "full_name": "Mutiara Rahma Salsabila", "base_points_16nov": 105, "new_reports_after_16nov": 4, "added_points_after_16nov": 45, "total_points": 150, "grade_letter": "B+"}, "AMA7-046": {"as_id": "AMA7-046", "full_name": "friska ayu andin", "base_points_16nov": 70, "new_reports_after_16nov": 6, "added_points_after_16nov": 80, "total_points": 150, "grade_letter": "B+"}, "AMA7-006": {"as_id": "AMA7-006", "full_name": "MUHAMAD RASYID IZATIPIQRI", "base_points_16nov": 90, "new_reports_after_16nov": 3, "added_points_after_16nov": 55, "total_points": 145, "grade_letter": "B+"}, "AMA7-066": {"as_id": "AMA7-066", "full_name": "Riska Susanti Hidayati", "base_points_16nov": 95, "new_reports_after_16nov": 4, "added_points_after_16nov": 50, "total_points": 145, "grade_letter": "B+"}, "AMA7-021": {"as_id": "AMA7-021", "full_name": "Reva Juwayyah Agustina Purba", "base_points_16nov": 105, "new_reports_after_16nov": 3, "added_points_after_16nov": 35, "total_points": 140, "grade_letter": "B"}, "AMA7-038": {"as_id": "AMA7-038", "full_name": "Azkadina Prameswari", "base_points_16nov": 85, "new_reports_after_16nov": 5, "added_points_after_16nov": 55, "total_points": 140, "grade_letter": "B"}, "AMA7-067": {"as_id": "AMA7-067", "full_name": "Naila Sabrina Alyannisa", "base_points_16nov": 90, "new_reports_after_16nov": 2, "added_points_after_16nov": 50, "total_points": 140, "grade_letter": "B"}, "AMA7-069": {"as_id": "AMA7-069", "full_name": "Aprylia Putri Hidayat", "base_points_16nov": 105, "new_reports_after_16nov": 3, "added_points_after_16nov": 35, "total_points": 140, "grade_letter": "B"}, "AMA7-029": {"as_id": "AMA7-029", "full_name": "Marsella Widodo", "base_points_16nov": 105, "new_reports_after_16nov": 1, "added_points_after_16nov": 30, "total_points": 135, "grade_letter": "B"}, "AMA7-072": {"as_id": "AMA7-072", "full_name": "Salsa Fania Balqis", "base_points_16nov": 125, "new_reports_after_16nov": 0, "added_points_after_16nov": 0, "total_points": 125, "grade_letter": "B"}, "AMA7-017": {"as_id": "AMA7-017", "full_name": "Raysha Salzabilla Thabitha", "base_points_16nov": 105, "new_reports_after_16nov": 1, "added_points_after_16nov": 15, "total_points": 120, "grade_letter": "C"}, "AMA7-036": {"as_id": "AMA7-036", "full_name": "Nonnissaa Rahma Putri", "base_points_16nov": 95, "new_reports_after_16nov": 2, "added_points_after_16nov": 20, "total_points": 115, "grade_letter": "C"}, "AMA7-040": {"as_id": "AMA7-040", "full_name": "ROY DEMSI EFFENDY", "base_points_16nov": 105, "new_reports_after_16nov": 1, "added_points_after_16nov": 10, "total_points": 115, "grade_letter": "C"}, "AMA7-015": {"as_id": "AMA7-015", "full_name": "Mohammad Khoerul Fadli Amin", "base_points_16nov": 95, "new_reports_after_16nov": 1, "added_points_after_16nov": 15, "total_points": 110, "grade_letter": "C"}, "AMA7-050": {"as_id": "AMA7-050", "full_name": "Dinalia Mukri Damayanti", "base_points_16nov": 110, "new_reports_after_16nov": 0, "added_points_after_16nov": 0, "total_points": 110, "grade_letter": "C"}, "AMA7-032": {"as_id": "AMA7-032", "full_name": "Deana Vieola Putri", "base_points_16nov": 105, "new_reports_after_16nov": 0, "added_points_after_16nov": 0, "total_points": 105, "grade_letter": "C"}, "AMA7-023": {"as_id": "AMA7-023", "full_name": "Santika Rosiqotun Ni'mah", "base_points_16nov": 95, "new_reports_after_16nov": 0, "added_points_after_16nov": 0, "total_points": 95, "grade_letter": "C"}, "AMA7-005": {"as_id": "AMA7-005", "full_name": "Billy Alpaqih Nur Illahi", "base_points_16nov": 80, "new_reports_after_16nov": 0, "added_points_after_16nov": 0, "total_points": 80, "grade_letter": "C"}, "AMA7-041": {"as_id": "AMA7-041", "full_name": "Rita Sinta Yustika", "base_points_16nov": 70, "new_reports_after_16nov": 1, "added_points_after_16nov": 10, "total_points": 80, "grade_letter": "C"}, "AMA7-054": {"as_id": "AMA7-054", "full_name": "Muthi’ah Zahrah", "base_points_16nov": 80, "new_reports_after_16nov": 0, "added_points_after_16nov": 0, "total_points": 80, "grade_letter": "C"}, "AMA7-062": {"as_id": "AMA7-062", "full_name": "Farhan Risky Ardani", "base_points_16nov": 70, "new_reports_after_16nov": 1, "added_points_after_16nov": 10, "total_points": 80, "grade_letter": "C"}, "AMA7-001": {"as_id": "AMA7-001", "full_name": "Ghefira Syahira S", "base_points_16nov": 70, "new_reports_after_16nov": 0, "added_points_after_16nov": 0, "total_points": 70, "grade_letter": "C"}, "AMA7-003": {"as_id": "AMA7-003", "full_name": "Queeny Bilqis Wulandari", "base_points_16nov": 70, "new_reports_after_16nov": 0, "added_points_after_16nov": 0, "total_points": 70, "grade_letter": "C"}, "AMA7-012": {"as_id": "AMA7-012", "full_name": "Muhammad Noval Dwiputra", "base_points_16nov": 70, "new_reports_after_16nov": 0, "added_points_after_16nov": 0, "total_points": 70, "grade_letter": "C"}, "AMA7-014": {"as_id": "AMA7-014", "full_name": "WIDELIS NUR ANISA", "base_points_16nov": 70, "new_reports_after_16nov": 0, "added_points_after_16nov": 0, "total_points": 70, "grade_letter": "C"}, "AMA7-019": {"as_id": "AMA7-019", "full_name": "Erik", "base_points_16nov": 70, "new_reports_after_16nov": 0, "added_points_after_16nov": 0, "total_points": 70, "grade_letter": "C"}, "AMA7-026": {"as_id": "AMA7-026", "full_name": "Dhia Aulia Rachma", "base_points_16nov": 70, "new_reports_after_16nov": 0, "added_points_after_16nov": 0, "total_points": 70, "grade_letter": "C"}, "AMA7-033": {"as_id": "AMA7-033", "full_name": "Chintia Nor Alfianti", "base_points_16nov": 70, "new_reports_after_16nov": 0, "added_points_after_16nov": 0, "total_points": 70, "grade_letter": "C"}, "AMA7-045": {"as_id": "AMA7-045", "full_name": "Fahsa Sanda", "base_points_16nov": 70, "new_reports_after_16nov": 0, "added_points_after_16nov": 0, "total_points": 70, "grade_letter": "C"}, "AMA7-047": {"as_id": "AMA7-047", "full_name": "Syarifah Chadijah", "base_points_16nov": 70, "new_reports_after_16nov": 0, "added_points_after_16nov": 0, "total_points": 70, "grade_letter": "C"}, "AMA7-052": {"as_id": "AMA7-052", "full_name": "Hizbullah Syahputra", "base_points_16nov": 70, "new_reports_after_16nov": 0, "added_points_after_16nov": 0, "total_points": 70, "grade_letter": "C"}};
+let liveLeaderboardMap = new Map();
+Object.values(SUPABASE_SNAPSHOT_27NOV).forEach(row => {
+  liveLeaderboardMap.set(row.as_id, row);
+  liveLeaderboardMap.set(normStr(row.full_name), row);
+});
+let lastLiveSyncSucceeded = false;
 
 function normalizeTeamFullName(rawTeam) {
   const t = String(rawTeam || '').trim().toUpperCase();
@@ -1650,6 +1821,9 @@ function getMergedAllRoster() {
       existing.batch_number = Number(sr.batch_number || existing.batch_number || 7);
       if (sr.bound_email) existing.email = sr.bound_email;
       if (sr.referral_code) existing.referral_code = sr.referral_code;
+      if (sr.avatar_data_url) existing.avatar_data_url = sr.avatar_data_url;
+      if (sr.avatar_color) existing.avatar_color = sr.avatar_color;
+      if (sr.bio) existing.bio = sr.bio;
       if (sr.official_base_total != null && Number(sr.official_base_total) > 0) {
         existing.official_base_total = Number(sr.official_base_total);
       }
@@ -1678,6 +1852,9 @@ function getMergedAllRoster() {
         base_final_project_pts: Number(sr.base_final_project_pts || 0),
         base_cohort_pts: Number(sr.base_cohort_pts || 0),
         official_base_total: Number(sr.official_base_total || 0),
+        avatar_data_url: sr.avatar_data_url || '',
+        avatar_color: sr.avatar_color || '#4F46E5',
+        bio: sr.bio || '',
         ba_uuid: deterministicUuid(code)
       });
     }
@@ -1696,7 +1873,7 @@ function buildFinalGraduationRows(batchFilterVal) {
     if (meta.is_historical_baseline || meta.is_registration || meta.is_psychometric || meta.is_soulcheck) return false;
     if (meta.status === 'rejected' || meta.annulled === true) return false;
     const rid = String(r.id || r.row_id || '');
-    if (rejectedIds.has(rid)) return false;
+    if (typeof rejectedItemMap !== 'undefined' && rejectedItemMap && (rejectedItemMap['sf_' + rid] || rejectedItemMap[rid])) return false;
     const cat = String(r.report_category || '');
     if (cat.includes('Registrasi') || cat.includes('Asesmen Kapsul') || cat.includes('Daily SoulCheck')) return false;
     return true;
@@ -1704,10 +1881,15 @@ function buildFinalGraduationRows(batchFilterVal) {
 
   return filteredRoster.map(ba => {
     const normNm = normStr(ba.name);
+    const baEmailNorm = String(ba.email || '').trim().toLowerCase();
     const myNew = validNewSubs.filter(r => {
       if (normStr(r.full_name) === normNm) return true;
-      if (r.extra_meta && r.extra_meta.as_id === ba.code) return true;
-      return false;
+      const meta = r.extra_meta || {};
+      if (meta.as_id && meta.as_id === ba.code) return true;
+      if (meta.referral_code && meta.referral_code === ba.referral_code) return true;
+      if (baEmailNorm && meta.email && String(meta.email).trim().toLowerCase() === baEmailNorm) return true;
+      const resolved = findOfficialBa(r.full_name || '');
+      return resolved ? normStr(resolved.name) === normNm : false;
     });
 
     // Dedup accidental identical double-clicks (same minute + title + link)
@@ -1723,7 +1905,10 @@ function buildFinalGraduationRows(batchFilterVal) {
       addPts += pts;
     });
 
-    const baseTot = Number(ba.official_base_total || 0);
+    const sbLbRow = liveLeaderboardMap.get(String(ba.code || '').trim()) || liveLeaderboardMap.get(normNm) || null;
+    const baseTot = Number(ba.official_base_total || (sbLbRow ? sbLbRow.base_points_16nov : 0) || 0);
+    const sbAddedPts = sbLbRow ? Number(sbLbRow.added_points_after_16nov || 0) : 0;
+    if (sbAddedPts > addPts) addPts = sbAddedPts;
     const finalTotal = baseTot + addPts;
     const g = evaluateGrade(finalTotal);
 
@@ -1738,6 +1923,22 @@ function buildFinalGraduationRows(batchFilterVal) {
         .map(d => d.checkin_date)
         .filter(Boolean)
     );
+    // Gabungkan juga log Daily SoulCheck yang masuk ke ama_superform_submissions agar tidak ada 1 hari pun yang terlewat!
+    (liveTrackerRecords || []).forEach(r => {
+      const meta = r.extra_meta || {};
+      const cat = String(r.report_category || '');
+      if (!meta.is_soulcheck && !cat.includes('Daily SoulCheck')) return;
+      const isMine = (
+        normStr(r.full_name) === normNm ||
+        (meta.as_id && meta.as_id === ba.code) ||
+        (meta.referral_code && meta.referral_code === ba.referral_code) ||
+        (baEmailNorm && meta.email && String(meta.email).trim().toLowerCase() === baEmailNorm)
+      );
+      if (isMine) {
+        const dt = meta.local_date || String(r.submitted_at_raw || r.created_at || '').slice(0, 10);
+        if (dt) myDcDates.add(dt);
+      }
+    });
 
     return {
       ...ba,
@@ -1745,12 +1946,12 @@ function buildFinalGraduationRows(batchFilterVal) {
       newReportCount: seen.size,
       finalTotal,
       gradeLetter: g.letter,
-      gradeLabel: g.label,
+      gradeLabel: g.pred,
       gradStatus: finalTotal >= 70 ? 'LULUS' : 'BELUM MEMENUHI',
       hasPre, hasMid, hasPost,
       journalDays: myDcDates.size
     };
-  });
+  }).sort((a, b) => (b.finalTotal - a.finalTotal) || String(a.code || '').localeCompare(String(b.code || '')));
 }
 
 function renderGraduationAndBatchViews() {
@@ -1780,7 +1981,10 @@ function renderGraduationAndBatchViews() {
   });
   const sumBar = $('#gradTeamSummaryBar');
   if (sumBar) {
-    sumBar.innerHTML = Object.entries(tSums).sort((a,b) => b[1] - a[1]).map(([tk, val], idx) => `
+    const offlineNotice = (!lastLiveSyncSucceeded && liveTrackerRecords.length <= 314)
+      ? `<div style="grid-column:1/-1;background:#fffbeb;border:1px solid #f59e0b;color:#92400e;border-radius:10px;padding:10px 14px;font-size:12px;line-height:1.5;"><strong>Snapshot Supabase 27 Nov 2026 (18:35 WIB) Aktif:</strong> Nilai terbaru seluruh 72 Duta (termasuk Shaila Sofi 370, Kafka 855, Daffa 735, dst.) sudah tertanam langsung. Saat dibuka di <strong>Vercel / browser langsung</strong>, klik <strong>Tarik Data Live Supabase</strong> untuk menarik kiriman terbaru setelah jam 18:35 WIB.</div>`
+      : '';
+    sumBar.innerHTML = offlineNotice + Object.entries(tSums).sort((a,b) => b[1] - a[1]).map(([tk, val], idx) => `
       <div style="background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;">
         <div style="font-size:11px;font-weight:700;color:var(--ink-muted);">#${idx+1} ${tk} TEAM</div>
         <div class="mono" style="font-size:18px;font-weight:800;color:var(--primary-dark);">${val.toLocaleString('id-ID')} Poin</div>
@@ -1794,12 +1998,17 @@ function renderGraduationAndBatchViews() {
       <tr>
         <td class="mono">${i + 1}</td>
         <td>
-          <strong>${esc(r.name)}</strong>
-          <div class="mono" style="font-size:11px;color:var(--ink-muted);">${esc(r.code)} · ${esc(r.referral_code)}</div>
+          <div style="display:flex;align-items:center;gap:9px;">
+            ${renderAdminAvatarHtml(r, 34)}
+            <div>
+              <button type="button" onclick="openBaProfileModal('${esc(r.code)}')" style="background:none;border:0;padding:0;text-align:left;cursor:pointer;color:var(--primary-dark);font-weight:800;font-size:13px;text-decoration:underline;text-underline-offset:2px;">${esc(r.name)}</button>
+              <div class="mono" style="font-size:11px;color:var(--ink-muted);">${esc(r.code)} · ${esc(r.referral_code)}</div>
+            </div>
+          </div>
         </td>
         <td>
           <div style="font-size:12px;font-weight:700;">${esc(r.team.split('—')[0].trim())}</div>
-          <span class="pill ${r.cohort_status === 'alumni' ? 'warn' : 'ok'}" style="font-size:10px;">Batch ${r.batch_number} · ${r.cohort_status === 'alumni' ? 'ALUMNI' : 'AKTIF'}</span>
+          <span class="pill ${r.cohort_status === 'alumni' ? 'pill-warn' : 'pill-ok'}" style="font-size:10px;">Batch ${r.batch_number} · ${r.cohort_status === 'alumni' ? 'ALUMNI' : 'AKTIF'}</span>
         </td>
         <td class="mono">${r.base_zoom_pts || 0}</td>
         <td class="mono">${r.base_wajib_pts || 0}</td>
@@ -1811,7 +2020,7 @@ function renderGraduationAndBatchViews() {
         <td class="mono" style="color:var(--ok);font-weight:700;">+${r.addPts}</td>
         <td class="mono" style="font-size:14px;font-weight:800;color:var(--primary-dark);">${r.finalTotal}</td>
         <td>
-          <span class="pill ${r.finalTotal >= 161 ? 'ok' : (r.finalTotal >= 70 ? 'info' : 'danger')}">${r.gradeLetter} · ${r.gradStatus}</span>
+          <span class="pill ${r.finalTotal >= 161 ? 'pill-ok' : (r.finalTotal >= 70 ? 'pill-warn' : 'pill-danger')}">${r.gradeLetter} · ${r.gradStatus}</span>
         </td>
         <td class="mono" style="font-size:11px;">
           B1:${r.hasPre ? 'OK' : '-'} · B2:${r.hasMid ? 'OK' : '-'} · B3:${r.hasPost ? 'OK' : '-'}
@@ -1853,11 +2062,12 @@ function renderGraduationAndBatchViews() {
         <td class="mono" style="font-size:11.5px;">${esc(r.referral_code)}</td>
         <td class="mono">Batch ${r.batch_number}</td>
         <td>
-          <span class="pill ${r.cohort_status === 'alumni_pro' ? 'info' : (r.cohort_status === 'alumni' ? 'warn' : 'ok')}">
+          <span class="pill ${r.cohort_status === 'alumni_pro' ? 'pill-ok' : (r.cohort_status === 'alumni' ? 'pill-warn' : 'pill-ok')}">
             ${r.cohort_status === 'alumni_pro' ? 'ALUMNI PRO (SOULCHECK)' : (r.cohort_status === 'alumni' ? 'ALUMNI (GRATIS)' : (r.cohort_status === 'closed' ? 'STOPPED (CUT-OFF)' : 'AKTIF'))}
           </span>
         </td>
         <td style="white-space:nowrap;">
+          <button type="button" class="btn btn-primary" style="padding:4px 9px;font-size:11px;" onclick="openBaProfileModal('${esc(r.code)}')">Profil &amp; Edit</button>
           <button type="button" class="btn" style="padding:4px 8px;font-size:11px;" onclick="toggleBaCohortStatus('${esc(r.code)}','${r.cohort_status === 'alumni_pro' ? 'alumni' : 'alumni_pro'}')">
             ${r.cohort_status === 'alumni_pro' ? 'Cabut SoulCheck Pro' : 'Aktifkan SoulCheck Pro'}
           </button>
@@ -1877,16 +2087,48 @@ renderAllViews = function() {
   renderGraduationAndBatchViews();
 };
 
+async function sbRestGet(tableOrView, queryStr) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${tableOrView}?${queryStr}`, {
+    headers: {
+      'apikey': SUPABASE_PUBLISHABLE_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_PUBLISHABLE_KEY,
+      'Accept': 'application/json'
+    }
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status} (${tableOrView})`);
+  return await res.json();
+}
+
 const _origFetchLive = fetchAllLiveSupabaseData;
 fetchAllLiveSupabaseData = async function() {
-  if (sb) {
-    try {
-      const { data: rData, error: rErr } = await sb.from('ama_ambassador_roster').select('*').order('as_id', { ascending: true }).limit(500);
-      if (!rErr && Array.isArray(rData)) {
-        liveRosterRecords = rData;
-      }
-    } catch (e) {}
-  }
+  try {
+    let rData = null, lbData = null;
+    if (sb) {
+      const [rRes, lbRes] = await Promise.all([
+        sb.from('ama_ambassador_roster').select('*').order('as_id', { ascending: true }).limit(500),
+        sb.from('v_ama_leaderboard_and_grades').select('*').limit(500)
+      ]);
+      if (!rRes.error && Array.isArray(rRes.data)) rData = rRes.data;
+      if (!lbRes.error && Array.isArray(lbRes.data)) lbData = lbRes.data;
+    }
+    if (!rData) {
+      try { rData = await sbRestGet('ama_ambassador_roster', 'select=*&order=as_id.asc&limit=500'); } catch(e) {}
+    }
+    if (!lbData) {
+      try { lbData = await sbRestGet('v_ama_leaderboard_and_grades', 'select=*&limit=500'); } catch(e) {}
+    }
+    if (Array.isArray(rData) && rData.length > 0) {
+      liveRosterRecords = rData;
+      lastLiveSyncSucceeded = true;
+    }
+    if (Array.isArray(lbData) && lbData.length > 0) {
+      lbData.forEach(row => {
+        if (row.as_id) liveLeaderboardMap.set(String(row.as_id).trim(), row);
+        if (row.full_name) liveLeaderboardMap.set(normStr(row.full_name), row);
+      });
+      lastLiveSyncSucceeded = true;
+    }
+  } catch (e) {}
   await _origFetchLive();
 };
 
@@ -2239,6 +2481,9 @@ function unlockAdminPanel(rememberDevice) {
     sessionStorage.setItem(ADMIN_SESS_KEY, '1');
     if (rememberDevice) localStorage.setItem(ADMIN_SESS_KEY, '1');
   } catch (e) {}
+  if (typeof renderAllViews === 'function') {
+    renderAllViews();
+  }
   if (typeof fetchAllLiveSupabaseData === 'function') {
     fetchAllLiveSupabaseData();
   }
@@ -2308,6 +2553,87 @@ function lockAdminPanelNow() {
   });
 })();
 
+
+function renderAdminAvatarHtml(ba, sizePx) {
+  const sz = sizePx || 36;
+  const initials = String(ba.name || 'DA').trim().split(/\s+/).slice(0, 2).map(w => (w[0] || '').toUpperCase()).join('');
+  const bg = ba.avatar_color || '#4F46E5';
+  if (ba.avatar_data_url && String(ba.avatar_data_url).startsWith('data:image')) {
+    return `<img src="${ba.avatar_data_url}" alt="${esc(ba.name)}" style="width:${sz}px;height:${sz}px;border-radius:${Math.round(sz*0.28)}px;object-fit:cover;border:1.5px solid #cbd5e1;flex-shrink:0;background:#fff;">`;
+  }
+  return `<div style="width:${sz}px;height:${sz}px;border-radius:${Math.round(sz*0.28)}px;background:${esc(bg)};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:${Math.round(sz*0.36)}px;flex-shrink:0;">${esc(initials)}</div>`;
+}
+
+function renderAccountsPhotoGallery() {
+  const grid = $('#accountsCardGrid');
+  if (!grid) return;
+  const q = ($('#adminSearchInput')?.value || '').trim().toLowerCase();
+  const teamF = $('#adminTeamFilter')?.value || 'ALL';
+  const batchF = $('#accBatchFilter')?.value || 'ALL';
+  const photoF = $('#accPhotoFilter')?.value || 'ALL';
+
+  const allRows = buildFinalGraduationRows(batchF);
+  const withPhotoCount = allRows.filter(r => r.avatar_data_url && String(r.avatar_data_url).startsWith('data:image')).length;
+
+  if ($('#tabBadgeAccounts')) $('#tabBadgeAccounts').textContent = String(allRows.length);
+  if ($('#accountsGallerySub')) {
+    $('#accountsGallerySub').textContent = `Total ${allRows.length} akun terpantau · ${withPhotoCount} Duta sudah mengunggah foto profil (PP) ke Supabase. Klik kartu mana saja untuk detail & edit akun.`;
+  }
+
+  const visible = allRows.filter(r => {
+    const hasPhoto = !!(r.avatar_data_url && String(r.avatar_data_url).startsWith('data:image'));
+    if (photoF === 'HAS_PHOTO' && !hasPhoto) return false;
+    if (photoF === 'NO_PHOTO' && hasPhoto) return false;
+    if (teamF !== 'ALL' && !String(r.team || '').toUpperCase().includes(teamF)) return false;
+    if (q && !`${r.code} ${r.name} ${r.email} ${r.referral_code} ${r.team}`.toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  grid.innerHTML = visible.map(r => {
+    const hasPhoto = !!(r.avatar_data_url && String(r.avatar_data_url).startsWith('data:image'));
+    const stLabel = r.cohort_status === 'alumni_pro' ? 'ALUMNI PRO' : (r.cohort_status === 'alumni' ? 'ALUMNI' : (r.cohort_status === 'closed' ? 'CUT-OFF' : 'AKTIF'));
+    const stClass = r.cohort_status === 'alumni_pro' ? 'pill-ok' : (r.cohort_status === 'active' ? 'pill-ok' : 'pill-warn');
+    return `
+      <div class="card" onclick="openBaProfileModal('${esc(r.code)}')" style="padding:14px 16px;cursor:pointer;transition:transform 0.12s ease,border-color 0.12s ease;" onmouseover="this.style.borderColor='#6366f1'" onmouseout="this.style.borderColor='var(--line)'">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+          ${renderAdminAvatarHtml(r, 48)}
+          <div style="min-width:0;flex:1;">
+            <div style="font-weight:800;font-size:13.5px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(r.name)}</div>
+            <div class="mono" style="font-size:11px;color:var(--ink-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(r.code)} · ${esc(r.referral_code)}</div>
+            <div style="font-size:11px;color:var(--ink-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(r.email || 'Email belum ditautkan')}</div>
+          </div>
+        </div>
+        ${r.bio ? `<div style="font-size:11.5px;color:var(--ink-secondary);background:var(--surface-muted);padding:6px 9px;border-radius:8px;margin-bottom:10px;line-height:1.4;">${esc(r.bio.slice(0, 90))}</div>` : ''}
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;padding-top:8px;border-top:1px solid var(--line);font-size:11.5px;">
+          <div style="display:flex;gap:5px;align-items:center;">
+            <span class="pill ${stClass}" style="font-size:10px;">B${r.batch_number} · ${stLabel}</span>
+            <span class="pill ${hasPhoto ? 'pill-ok' : 'pill-warn'}" style="font-size:10px;">${hasPhoto ? 'Ada PP' : 'Belum PP'}</span>
+          </div>
+          <strong class="mono" style="color:var(--primary-dark);">${r.finalTotal} Poin (${r.gradeLetter})</strong>
+        </div>
+      </div>
+    `;
+  }).join('') || '<div class="card" style="padding:24px;text-align:center;color:var(--ink-muted);grid-column:1/-1;">Tidak ada akun yang cocok dengan filter pencarian.</div>';
+}
+
+const _origRenderGradAndBatch = renderGraduationAndBatchViews;
+renderGraduationAndBatchViews = function() {
+  _origRenderGradAndBatch();
+  renderAccountsPhotoGallery();
+};
+
+$('#accBatchFilter')?.addEventListener('change', renderAccountsPhotoGallery);
+$('#accPhotoFilter')?.addEventListener('change', renderAccountsPhotoGallery);
+
+
+;(function initPsychScreenshotControls(){
+  document.getElementById('psychStageFilter')?.addEventListener('change', () => { if (typeof renderAllViews === 'function') renderAllViews(); });
+  document.getElementById('psychProofFilter')?.addEventListener('change', () => { if (typeof renderAllViews === 'function') renderAllViews(); });
+  document.getElementById('closeSsLightboxBtn')?.addEventListener('click', () => document.getElementById('ssLightboxModal')?.classList.remove('open'));
+  document.getElementById('ssLightboxModal')?.addEventListener('click', (e) => {
+    if (e.target === document.getElementById('ssLightboxModal')) document.getElementById('ssLightboxModal')?.classList.remove('open');
+  });
+})();
 </script>
 </body>
 </html>
